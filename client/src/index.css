@@ -1,0 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f8f6ff;
+  color: #1a1a2e;
+}
+
+:root {
+  --purple: #c084fc;
+  --purple-dark: #7c3aed;
+  --purple-light: #ede9fe;
+  --pink: #FF6B9D;
+  --orange: #FFB347;
+  --blue: #3b82f6;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --dark: #1a1a2e;
+  --white: #ffffff;
+  --gray: #f8f6ff;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input {
+  outline: none;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+}

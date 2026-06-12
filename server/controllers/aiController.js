@@ -5,7 +5,7 @@ const analyzeMeal = async (req, res) => {
     const { text } = req.body
     
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
     const prompt = `You are a nutrition expert. Analyze this meal and return ONLY pure JSON, no markdown, no extra text.
 Meal: "${text}"

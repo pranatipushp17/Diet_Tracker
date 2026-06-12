@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api'
+  baseURL: 'https://diet-tracker-d22u.onrender.com/api'
 })
 
 // har request mein automatically token lagao

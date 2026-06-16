@@ -45,7 +45,14 @@ function LogMeal() {
     )
   }
 
+  const removeFood = (id) => {
+    setAddedFoods(addedFoods.filter(f => f._id !== id))
+  }
+
   const totalCalories = addedFoods.reduce((sum, f) => sum + f.calories * f.quantity, 0)
+  const totalProtein = addedFoods.reduce((sum, f) => sum + (f.protein || 0) * f.quantity, 0)
+  const totalCarbs = addedFoods.reduce((sum, f) => sum + (f.carbs || 0) * f.quantity, 0)
+  const totalFat = addedFoods.reduce((sum, f) => sum + (f.fat || 0) * f.quantity, 0)
 
   const handleSave = async () => {
     if (addedFoods.length === 0) return
@@ -58,7 +65,10 @@ function LogMeal() {
           foodId: f._id,
           name: f.name,
           quantity: f.quantity,
-          calories: f.calories * f.quantity
+          calories: f.calories * f.quantity,
+          protein: (f.protein || 0) * f.quantity,
+          carbs: (f.carbs || 0) * f.quantity,
+          fat: (f.fat || 0) * f.quantity
         })),
         totalCalories
       })
@@ -141,7 +151,7 @@ function LogMeal() {
                   <div key={food._id} style={styles.resultRow}>
                     <div>
                       <div style={styles.foodName}>{food.name}</div>
-                      <div style={styles.foodMeta}>{food.servingSize}{food.servingUnit}</div>
+                      <div style={styles.foodMeta}>{food.servingSize}{food.servingUnit} · P:{food.protein}g C:{food.carbs}g F:{food.fat}g</div>
                     </div>
                     <div style={styles.resultRight}>
                       <div style={styles.calBadge}>{food.calories} kcal</div>
@@ -182,7 +192,6 @@ function LogMeal() {
               </div>
             )}
           </div>
-
         </div>
 
         {/* Right: Added Foods */}
@@ -197,14 +206,15 @@ function LogMeal() {
             ) : (
               addedFoods.map(food => (
                 <div key={food._id} style={styles.addedItem}>
-                  <div>
+                  <div style={{ flex: 1 }}>
                     <div style={styles.addedName}>{food.name}</div>
-                    <div style={styles.addedSub}>{food.calories * food.quantity} kcal</div>
+                    <div style={styles.addedSub}>{food.calories * food.quantity} kcal · P:{((food.protein||0)*food.quantity).toFixed(1)}g C:{((food.carbs||0)*food.quantity).toFixed(1)}g F:{((food.fat||0)*food.quantity).toFixed(1)}g</div>
                   </div>
                   <div style={styles.qtyControl}>
                     <button style={styles.qtyBtn} onClick={() => updateQty(food._id, -1)}>−</button>
                     <span style={styles.qtyVal}>{food.quantity}</span>
                     <button style={styles.qtyBtn} onClick={() => updateQty(food._id, 1)}>+</button>
+                    <button style={styles.deleteBtn} onClick={() => removeFood(food._id)}>🗑</button>
                   </div>
                 </div>
               ))
@@ -212,6 +222,22 @@ function LogMeal() {
 
             {addedFoods.length > 0 && (
               <>
+                {/* Macros Summary */}
+                <div style={styles.macroSummary}>
+                  <div style={styles.macroItem}>
+                    <div style={styles.macroLabel}>Protein</div>
+                    <div style={{ ...styles.macroVal, color: '#3b82f6' }}>{totalProtein.toFixed(1)}g</div>
+                  </div>
+                  <div style={styles.macroItem}>
+                    <div style={styles.macroLabel}>Carbs</div>
+                    <div style={{ ...styles.macroVal, color: '#f59e0b' }}>{totalCarbs.toFixed(1)}g</div>
+                  </div>
+                  <div style={styles.macroItem}>
+                    <div style={styles.macroLabel}>Fat</div>
+                    <div style={{ ...styles.macroVal, color: '#ec4899' }}>{totalFat.toFixed(1)}g</div>
+                  </div>
+                </div>
+
                 <div style={styles.totalBar}>
                   <span style={styles.totalLabel}>Total</span>
                   <span style={styles.totalVal}>{totalCalories} kcal</span>
@@ -245,7 +271,7 @@ const styles = {
   results: { marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' },
   resultRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#f8f6ff', borderRadius: '8px' },
   foodName: { fontSize: '13px', fontWeight: '500', color: 'var(--dark)' },
-  foodMeta: { fontSize: '11px', color: 'var(--text-secondary)' },
+  foodMeta: { fontSize: '10px', color: 'var(--text-secondary)' },
   resultRight: { display: 'flex', alignItems: 'center', gap: '8px' },
   calBadge: { fontSize: '12px', fontWeight: '500', color: '#7c3aed', background: '#ede9fe', padding: '3px 8px', borderRadius: '6px' },
   addBtn: { width: '26px', height: '26px', borderRadius: '6px', background: '#c084fc', color: '#fff', fontSize: '16px', cursor: 'pointer', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' },
@@ -261,10 +287,15 @@ const styles = {
   addAiBtn: { background: 'linear-gradient(135deg, #c084fc, #818cf8)', color: '#fff', padding: '7px 14px', borderRadius: '7px', fontSize: '12px', fontWeight: '600', border: 'none', cursor: 'pointer' },
   addedItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: '#f8f6ff', borderRadius: '10px', marginBottom: '8px' },
   addedName: { fontSize: '13px', fontWeight: '500', color: 'var(--dark)' },
-  addedSub: { fontSize: '11px', color: '#c084fc', fontWeight: '500' },
-  qtyControl: { display: 'flex', alignItems: 'center', gap: '8px' },
+  addedSub: { fontSize: '10px', color: '#c084fc', fontWeight: '500', marginTop: '2px' },
+  qtyControl: { display: 'flex', alignItems: 'center', gap: '6px' },
   qtyBtn: { width: '24px', height: '24px', borderRadius: '6px', background: '#fff', border: '1px solid var(--border)', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dark)' },
   qtyVal: { fontSize: '13px', fontWeight: '600', color: 'var(--dark)', minWidth: '16px', textAlign: 'center' },
+  deleteBtn: { width: '24px', height: '24px', borderRadius: '6px', background: '#fee2e2', border: 'none', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  macroSummary: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', margin: '8px 0' },
+  macroItem: { background: '#f8f6ff', borderRadius: '8px', padding: '8px', textAlign: 'center' },
+  macroLabel: { fontSize: '10px', color: 'var(--text-secondary)', marginBottom: '2px' },
+  macroVal: { fontSize: '14px', fontWeight: '600' },
   totalBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ede9fe', borderRadius: '8px', padding: '10px 12px', margin: '8px 0' },
   totalLabel: { fontSize: '13px', color: '#7c3aed', fontWeight: '500' },
   totalVal: { fontSize: '18px', fontWeight: '600', color: '#7c3aed' },

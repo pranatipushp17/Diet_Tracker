@@ -52,16 +52,21 @@ const updateDailyLog = async (userId, date) => {
   const totals = meals.reduce((acc, meal) => {
     acc.totalCalories += meal.totalCalories || 0
     meal.foods.forEach(f => {
-      acc.totalProtein += f.protein || 0
-      acc.totalCarbs += f.carbs || 0
-      acc.totalFat += f.fat || 0
+      acc.totalProtein += parseFloat(f.protein) || 0
+      acc.totalCarbs += parseFloat(f.carbs) || 0
+      acc.totalFat += parseFloat(f.fat) || 0
     })
     return acc
   }, { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0 })
 
+  // Round to 1 decimal
+  totals.totalProtein = Math.round(totals.totalProtein * 10) / 10
+  totals.totalCarbs = Math.round(totals.totalCarbs * 10) / 10
+  totals.totalFat = Math.round(totals.totalFat * 10) / 10
+
   await DailyLog.findOneAndUpdate(
     { userId, date },
-    { ...totals },
+    { $set: { ...totals } },
     { upsert: true, new: true }
   )
 }

@@ -33,6 +33,15 @@ function Dashboard() {
     }
   }
 
+  const deleteMeal = async (id) => {
+    try {
+      await API.delete(`/meals/${id}`)
+      fetchData()
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const calorieGoal = user?.dailyCalorieGoal || 2000
   const consumed = dailyLog?.totalCalories || 0
   const remaining = calorieGoal - consumed
@@ -103,25 +112,33 @@ function Dashboard() {
           {/* Macros */}
           <div style={styles.card}>
             <div style={styles.cardTitle}>MACROS</div>
-            <ResponsiveContainer width="100%" height={120}>
-              <PieChart>
-                <Pie data={macroData} cx="50%" cy="50%" innerRadius={35} outerRadius={55} dataKey="value">
-                  {macroData.map((entry, index) => (
-                    <Cell key={index} fill={entry.color} />
+            {macroData.every(m => m.value === 0) ? (
+              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px', padding: '2rem 0' }}>
+                Log a meal to see macros!
+              </div>
+            ) : (
+              <>
+                <ResponsiveContainer width="100%" height={120}>
+                  <PieChart>
+                    <Pie data={macroData} cx="50%" cy="50%" innerRadius={35} outerRadius={55} dataKey="value">
+                      {macroData.map((entry, index) => (
+                        <Cell key={index} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={styles.macroLegend}>
+                  {macroData.map((m) => (
+                    <div key={m.name} style={styles.macroItem}>
+                      <div style={{ ...styles.macroDot, background: m.color }}></div>
+                      <span style={styles.macroName}>{m.name}</span>
+                      <span style={styles.macroVal}>{m.value}g</span>
+                    </div>
                   ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div style={styles.macroLegend}>
-              {macroData.map((m) => (
-                <div key={m.name} style={styles.macroItem}>
-                  <div style={{ ...styles.macroDot, background: m.color }}></div>
-                  <span style={styles.macroName}>{m.name}</span>
-                  <span style={styles.macroVal}>{m.value}g</span>
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
 
           {/* Weekly Chart */}
@@ -156,7 +173,13 @@ function Dashboard() {
                       <div style={styles.mealSub}>{meal.foods.map(f => f.name).join(', ')}</div>
                     </div>
                   </div>
-                  <div style={styles.mealCal}>{meal.totalCalories} kcal</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={styles.mealCal}>{meal.totalCalories} kcal</div>
+                    <button
+                      style={styles.deleteBtn}
+                      onClick={() => deleteMeal(meal._id)}
+                    >🗑</button>
+                  </div>
                 </div>
               ))
             )}
@@ -247,6 +270,7 @@ const styles = {
   mealName: { fontSize: '13px', fontWeight: '600', color: 'var(--dark)' },
   mealSub: { fontSize: '11px', color: 'var(--text-secondary)' },
   mealCal: { fontSize: '13px', fontWeight: '600', color: '#c084fc' },
+  deleteBtn: { background: '#fee2e2', border: 'none', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', fontSize: '12px' },
   empty: { fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center', padding: '1rem 0' },
   statsGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' },
   statBox: { background: '#f8f6ff', borderRadius: '10px', padding: '10px 12px' },
